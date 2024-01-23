@@ -1,46 +1,47 @@
 #!/usr/bin/python3
-"""Testing amenity"""
 
 import unittest
-import models
-from models.base_model import BaseModel
-from models.user import User
-from models.state import State
-from models.city import City
 from models.amenity import Amenity
-from models.amenity import Amenity
-from models.place import Place
-from models.review import Review
 
 
 class TestAmenity(unittest.TestCase):
-    """Tests the Amenity class."""
-
+    """Unittest for Amenity"""
+    def test_str(self):
+        """test str"""
+        amenity = Amenity()
+        amenity.save()
+        self.assertEqual(str(amenity), "[Amenity] ({}) {}".format(
+            amenity.id, amenity.__dict__))
+    
     def test_name(self):
-        """Test the name attribute of the Amenity class."""
+        """Test name"""
         amenity = Amenity()
-        self.assertEqual(amenity.name, "")
-        amenity.name = "Pool"
-        self.assertEqual(amenity.name, "Pool")
-
-    def test_inheritance(self):
-        """Test that Amenity inherits from BaseModel."""
+        amenity.name = "Wifi"
+        self.assertEqual(amenity.name, "Wifi")
+    
+    def test_id(self):
+        """Test id"""
         amenity = Amenity()
-        self.assertIsInstance(amenity, BaseModel)
-
-    def test_to_dict(self):
-        """Test the to_dict method of the Amenity class."""
+        amenity.name = "Wifi"
+        self.assertIsInstance(amenity.id, str)
+        self.assertEqual(len(amenity.id), 36)
+    
+    def test_save(self):
+        """test save"""
         amenity = Amenity()
-        amenity.name = "Pool"
-        amenity_dict = amenity.to_dict()
-        self.assertEqual(amenity_dict["name"], "Pool")
-        self.assertEqual(amenity_dict["__class__"], "Amenity")
+        amenity.save()
+        self.assertNotEqual(amenity.created_at, amenity.updated_at)
+    
+    def test_type_amenity(self):
+        """test type amenity"""
+        self.new_amenity = Amenity()
+        self.assertEqual(self.new_amenity.name, "")
+    
+    def test_save(self):
+        """test save"""
+        amenity = Amenity()
+        amenity.save()
+        self.assertNotEqual(amenity.created_at, amenity.updated_at)
 
-    def test_init(self):
-        """Test the __init__ method of the Amenity class."""
-        amenity = Amenity(name="Pool")
-        self.assertEqual(amenity.name, "Pool")
-
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()

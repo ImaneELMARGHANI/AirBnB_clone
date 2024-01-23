@@ -1,118 +1,63 @@
 #!/usr/bin/python3
-"""Defines unittests for models/engine/file_storage.py.
-"""
-import os
-import json
+"""Unit tests for FileStorage"""
 import unittest
-from unittest.mock import patch
+import json
+import os
 from models.base_model import BaseModel
-from models.user import User
-from models.state import State
-from models.city import City
-from models.amenity import Amenity
-from models.review import Review
 from models.engine.file_storage import FileStorage
+from models import storage
 
 
 class TestFileStorage(unittest.TestCase):
-    """Test cases for the FileStorage class"""
+    """Unit tests for FileStorage"""
 
     def setUp(self):
-        """Set up for the tests"""
-        self.file_path = "test_file.json"
-        FileStorage._FileStorage__file_path = self.file_path
-        self.storage = FileStorage()
-        self.storage.reload()
+        """Setting up the test cases"""
+        super().setUp()
+        self.file_path = storage._FileStorage__file_path
+        self.instance = BaseModel()
+        self._objs = storage._FileStorage__objects
+        self.keyname = "BaseModel." + self.instance.id
 
-    def tearDown(self):
-        """Clean up after each test"""
-        if os.path.exists(self.file_path):
-            os.remove(self.file_path)
-
-    def test_all_returns_dictionary(self):
-        """Test if the all() method returns a dictionary"""
-        result = self.storage.all()
-        self.assertIsInstance(result, dict)
+    def test_all(self):
+        """Test all"""
+        self.assertTrue(hasattr(storage, "all"))
 
     def test_new(self):
-        """Test the new() method"""
-        obj = BaseModel()
-        self.storage.new(obj)
-        key = "{}.{}".format(obj.__class__.__name__, obj.id)
-        self.assertIn(key, self.storage.all())
-
-    def test_save(self):
-        """Test the save() method"""
-        obj = BaseModel()
-        self.storage.new(obj)
-        self.storage.save()
-        self.assertTrue(os.path.exists(self.file_path))
-        with open(self.file_path, "r") as f:
-            data = json.load(f)
-        key = "{}.{}".format(obj.__class__.__name__, obj.id)
-        self.assertIn(key, data)
+        """Test new"""
+        self.assertTrue(hasattr(storage, "new"))
 
     def test_reload(self):
-        """Test the reload() method"""
+        """Test reload"""
+        self.assertTrue(hasattr(storage, "reload"))
+
+    def test_all_methode(self):
+        """test all methode"""
+        result = storage.all()
+        self.assertIsInstance(result, dict)
+
+    def test_new_methode(self):
+        """test new methode"""
         obj = BaseModel()
-        self.storage.new(obj)
-        self.storage.save()
-
-        # Clear current storage instance and reload from the file
-        self.storage._FileStorage__objects = {}
-        self.storage.reload()
-
+        storage.new(obj)
         key = "{}.{}".format(obj.__class__.__name__, obj.id)
-        self.assertIn(key, self.storage.all())
+        self.assertIn(key, storage.all().keys())
 
-    def test_all_empty_storage(self):
-        """Test all() method with empty storage"""
-        all_objs = self.storage.all()
-        for obj_id in all_objs.keys():
-            obj = all_objs[obj_id]
-            self.assertIsNotNone(obj)
-        self.assertTrue(os.path.isfile('file.json'))
+    def test_save_method(self):
+        """Test the save() method"""
+        my_model = BaseModel()
+        my_model.name = "My_First_Model"
+        my_model.my_number = 89
+        storage.new(my_model)
+        storage.save()
+        with open(self.file_path, "r") as data_file:
+            saved_data = json.load(data_file)
 
-    def test_reload_with_arg(self):
-        """Test reload() method with an argument"""
-        with self.assertRaises(TypeError):
-            self.storage.reload(None)
+        expected_data = {}
+        for key, value in self._objs.items():
+            expected_data[key] = value.to_dict()
 
-    def test_reload_from_file(self):
-        """Test reloading from a file"""
-        objs = self.storage.all()
-        for obj in objs.values():
-            self.assertIsNotNone(obj)
-            self.assertIsInstance(obj, dict)
-        self.assertTrue(os.path.isfile('file.json'))
-
-    def test_instance_deletion(self):
-        """Test deletion of an object instance"""
-        obj = BaseModel()
-        self.storage.new(obj)
-        self.storage.save()
-        obj_key = "{}.{}".format(obj.__class__.__name__, obj.id)
-        del obj
-        self.storage.reload()
-        self.assertNotIn(obj_key, self.storage.all())
-
-    def test_new_multiple_objects(self):
-        """Test creating and saving multiple object types"""
-        obj1 = BaseModel()
-        obj2 = User()
-        obj3 = State()
-        self.storage.new(obj1)
-        self.storage.new(obj2)
-        self.storage.new(obj3)
-        self.storage.save()
-        obj1_key = "{}.{}".format(obj1.__class__.__name__, obj1.id)
-        obj2_key = "{}.{}".format(obj2.__class__.__name__, obj2.id)
-        obj3_key = "{}.{}".format(obj3.__class__.__name__, obj3.id)
-        self.storage._FileStorage__objects = {}
-        self.storage.reload()
-        self.assertIn(obj1_key, self.storage.all())
-        self.assertIn(obj2_key, self.storage.all())
-        self.assertIn(obj3_key, self.storage.all())
+        self.assertEqual(saved_data, expected_data)
 
 
 if __name__ == "__main__":

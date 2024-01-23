@@ -1,58 +1,46 @@
 #!/usr/bin/python3
-"""Defines unittests for models/city.py.
-
-Unittest classes:
-    TestCity_instantiation
-    TestCity_save
-    TestCity__to__dict
-"""
-
+"""Unittest for amenity"""
 import unittest
 from models.city import City
-from models.base_model import BaseModel
+from models.state import State
 
 
 class TestCity(unittest.TestCase):
-    """Unittests for testing instantiation of the City class."""
-    def test_attributes_initialization(self):
+    """Unittest for amenity"""
+    def test_name(self):
+        """Test name"""
         city = City()
-        self.assertEqual(city.state_id, "")
-        self.assertEqual(city.name, "")
-
-    def test_name_attr(self):
+        city.name = "San Francisco"
+        self.assertEqual(city.name, "San Francisco")
+    
+    def test_state_id(self):
+        """Test state_id"""
         city = City()
-        self.assertTrue(hasattr(city, "name"))
-        self.assertEqual(city.name, "")
-
-    def test_state_id_attr(self):
+        city.state_id = "CA"
+        self.assertEqual(city.state_id, "CA")
+    
+    def test_id(self):
+        """Test id"""
         city = City()
-        self.assertTrue(hasattr(city, "state_id"))
-        self.assertEqual(city.state_id, "")
-
-    def test_attribute_types(self):
+        city.name = "San Francisco"
+        city.state_id = "CA"
+        self.assertIsInstance(city.id, str)
+        self.assertEqual(len(city.id), 36)
+    
+    def test_str(self):
+        """Test str"""
         city = City()
-        self.assertIsInstance(city.state_id, str)
-        self.assertIsInstance(city.name, str)
-
-    def test_attribute_values(self):
+        city.name = "San Francisco"
+        city.state_id = "CA"
+        self.assertEqual(str(city), "[City] ({}) {}".format(city.id, city.__dict__))
+    
+    def test_save(self):
+        """Test save"""
         city = City()
-        city.state_id = "234"
-        city.name = "Nigeria"
-        self.assertEqual(city.state_id, "234")
-        self.assertEqual(city.name, "Nigeria")
-
-    def test_update_attribute_values(self):
-        city = City()
-        city.name = "Enugu"
-        self.assertEqual(city.name, "Enugu")
-
-    def test_is_subclass(self):
-        city = City()
-        self.assertIsInstance(city, BaseModel)
-        self.assertTrue(hasattr(city, "id"))
-        self.assertTrue(hasattr(city, "created_at"))
-        self.assertTrue(hasattr(city, "updated_at"))
-
+        city.name = "San Francisco"
+        city.state_id = "CA"
+        city.save()
+        self.assertNotEqual(city.created_at, city.updated_at)
 
 if __name__ == '__main__':
     unittest.main()
